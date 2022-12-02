@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class StreamOperations {
@@ -63,6 +64,23 @@ public class StreamOperations {
         products.stream().filter(p -> p.getCategory().equalsIgnoreCase("Books"))
                 .mapToDouble(p -> p.getPrice()).summaryStatistics();
 
+        //Obtain a data map with order id and order’s product count
+        orders.stream().collect(Collectors.toMap(order-> order.getId()
+                ,order-> order.getProducts().size()));
 
+        //Produce a data map with order records grouped by customer
+        orders.stream().collect(Collectors.groupingBy(Order::getCustomer));
+
+        //Produce a data map with order record and product total sum
+        orders.stream().collect(Collectors.toMap(Function.identity()
+                ,order-> order.getProducts().stream().mapToDouble(product-> product.getPrice()).sum()));
+
+        //Obtain a data map with list of product name by category
+        products.stream().collect(Collectors.groupingBy(Product :: getCategory
+                ,Collectors.mapping(product-> product.getName(), Collectors.toList())));
+
+        //Get the most expensive product by category
+        products.stream().collect(Collectors.groupingBy(Product::getCategory,
+                Collectors.maxBy(Comparator.comparing(Product::getPrice))));
     }
 }
